@@ -13,8 +13,16 @@ Checkout the Keep
 git clone git@github.com:hurrycane/keep.git
 ```
 
-in the _keep_ directory run:
+in the *keep* directory run:
 
 ```
 ./pants
+```
+
+this bootstraps the build tool.
+
+To actually build the PEX file for the keep agent run:
+
+```
+./pants src/python/keep:keep_agent
 ```
