@@ -52,3 +52,10 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# pants
+build-support/virtualenv-*
+build-support/pants.venv
+.pants*
+
+# OS X DS_Store
+.DS_Store
