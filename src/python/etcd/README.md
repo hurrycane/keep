@@ -1,5 +1,13 @@
 # py-etcd API
 
+[![Pypi Version](https://img.shields.io/pypi/v/py-etcd.svg?style=flat)][pypi]
+[![Pypi Downloads](https://img.shields.io/pypi/dm/py-etcd.svg?style=flat)][downloads]
+
+[pypi]: https://pypi.python.org/pypi/py-etcd
+[downloads]: https://pypi.python.org/pypi/py-etcd
+
+PyEtcd is a [Etcd](https://github.com/coreos/etcd)  client written in pure-Python.
+
 ## Basic Operations
 
 The primary API for etcd is a [hierarchical key space](https://github.com/coreos/etcd/blob/master/Documentation/api.md#key-space-operations). _Keys_ can be either directories or keys (nodes).
@@ -153,6 +161,8 @@ You can watch for changes for a key:
 
 for change in client.watch("queue", recursive=True):
   print change
+
+```
 
 ### Atomic CAS (Compare and Swap) and CAD (Compare and Delete)
 
