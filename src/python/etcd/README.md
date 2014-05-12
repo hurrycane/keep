@@ -102,21 +102,100 @@ Also A key TTL can be deleted
 client.refresh("key", ttl=False)
 ```
 
-### Creating a directory
+### Directories
 
-Directory + TTL + Listing + Deleting
+Besides keys etcd supports directories.
+
+#### Creating directories
+
+Creating directories also creates in-order keys.
+
+```python
+response = client.mkdir("queue", "Job1")
+response
+{
+  "node":{
+    "createdIndex": 6,
+    "key": "/queue/6",
+    "modifiedIndex": 6,
+    "value": "Job1"
+  }
+}
+```
+
+Full is by default enabled for *mkdir*.
+Also mkdir can be valled without value.
+
+##### Directires, TTL and refreshing
+
+Like keys directories can expire after some time
+```python
+response = client.mkdir("queue", "job1", ttl=30)
+```
+
+You can *refresh* a directory by using *refreshdir*:
+```python
+response = client.refresh_dir("queue", ttl=30)
+```
+
+#### Listing directories
+
+```python
+for item in client.listdir("queue"):
+  print item
+```
 
 ### Watching for a key
 
+You can watch for changes for a key:
+
+```python
+
+for change in client.watch("queue", recursive=True):
+  print change
+
 ### Atomic CAS (Compare and Swap) and CAD (Compare and Delete)
+
+```python
+
+client.set("foo", "bar")
+
+# compare and swap for value
+client.set("foo", "barez", if_value="bar")
+
+```
+
+It also supports:
+
+* if_index
+* if_exists
 
 ### Consistency
 
-consistent=true
+For all of the above methods you can supply a consistent=True param that
+would make the client redirect to the master.
 
 ### Lock
 
+```python
+# tries to acquires a lock for 60s, by default the timeout is 5s
+lock = client.lock("key", ttl=60)
+
+# tries to acquire a lock for 60s, it waits 2s for the response
+lock = client.lock("key", ttl=60, timeout=2)
+
+# renew ttl (same as acquire)
+lock = client.lock("key", ttl=60)
+
+# renew ttl with a certain index
+lock = client.lock("key", ttl=60, index=2)
+```
+
 ### Leader Election
+```python
+# only one will succed. If not will block until is acquires the leadership
+leader = client.loader("key", "value", ttl=60, timeout=10)
+```
 
 ## Changes
 
