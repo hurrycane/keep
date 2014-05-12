@@ -1,4 +1,4 @@
-# py-etcd API
+# py-etcd
 
 [![Pypi Version](https://img.shields.io/pypi/v/py-etcd.svg?style=flat)][pypi]
 [![Pypi Downloads](https://img.shields.io/pypi/dm/py-etcd.svg?style=flat)][downloads]
