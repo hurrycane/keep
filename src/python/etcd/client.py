@@ -1,4 +1,3 @@
-import grequests
 import requests
 
 class Client(object):
@@ -13,11 +12,11 @@ class Client(object):
     self._execute_command('GET', "machines", None, no_answer=True,
                           expected_status=200)
 
-  def get(self, name, full_response=False):
+  def get(self, name, full=False, consistent=True):
     return self._execute_command('GET', "keys", name,
                                  full_response=full_response)
 
-  def set(self, name, value, full_response=False, ttl=None):
+  def set(self, name, value, full=False, ttl=None, consistent=True):
     data = { 'value': value }
     if ttl:
       data['ttl'] = ttl
@@ -25,28 +24,31 @@ class Client(object):
     return self._execute_command('PUT', "keys", name, data,
                                  full_response=full_response)
 
-  def mkdir(self, name, ttl=None, full_response=False):
+  def mkdir(self, name, value=None, ttl=None, full=False, consistent=True):
     data = { 'dir': True }
 
     if not ttl:
       data['ttl'] = ttl
 
-    return self._execute_command('PUT', "keys", name, data, no_answer=True,
-                                 full_response=True)
+    if value == None:
+      value = "keys"
+
+    return self._execute_command('PUT', value, name, data, no_answer=True,
+                                 full=True)
 
   def listdir(self, name, recursive=False):
     return self._execute_command('GET', "keys", "%s/?recursive=%s" % (name, recursive),
                                  full_response=True)
 
 
-  def delete(self, name, full_response=False):
+  def delete(self, name, full=False):
     return self._execute_command('DELETE', "keys", name, no_answer=True,
                                  full_response=full_response)
 
   def refresh_dir(self, name):
     pass
 
-  def refresh(self, name, ttl, value=None):
+  def refresh(self, name, ttl, value=None, full=False):
     data = { 'prevExist': True }
 
     if value:
@@ -56,7 +58,7 @@ class Client(object):
       data['ttl'] = ttl
 
     return self._execute_command('PUT', "keys", name, data,
-                                 full_response=True)
+                                 full=Full)
 
   def watch(self, name, recursive=False):
     while True:
