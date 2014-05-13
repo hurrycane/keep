@@ -1,6 +1,9 @@
 import random
 import requests
 
+class StatusCodeException(Exception):
+  pass
+
 class Client(object):
 
   def __init__(self, host=None, port=None, peers=None, discovery=None,
@@ -45,7 +48,7 @@ class Client(object):
       data['ttl'] = ttl
 
     return self._execute_command('PUT', "keys", name, data,
-                                 full_response=full_response)
+                                 full=full)
 
   def mkdir(self, name, value=None, ttl=None, full=False, consistent=True):
     data = { 'dir': True }
@@ -61,12 +64,12 @@ class Client(object):
 
   def listdir(self, name, recursive=False):
     return self._execute_command('GET', "keys", "%s/?recursive=%s" % (name, recursive),
-                                 full_response=True)
+                                 full=True)
 
 
   def delete(self, name, full=False):
     return self._execute_command('DELETE', "keys", name, no_answer=True,
-                                 full_response=full_response)
+                                 full=full)
 
   def refresh_dir(self, name):
     pass
@@ -86,7 +89,7 @@ class Client(object):
   def watch(self, name, recursive=False):
     while True:
       try:
-        response = self._execute_command('GET', "keys", "%s?wait=true&recursive=%s" % (name, recursive), full_response=True)
+        response = self._execute_command('GET', "keys", "%s?wait=true&recursive=%s" % (name, recursive), full=True)
         yield response
       except requests.exceptions.Timeout:
         pass
@@ -94,8 +97,8 @@ class Client(object):
   def _base_url(self, peer):
     return "http://%s:%s/v2" % (peer["host"], peer["port"])
 
-  def _parse_response(self, response, full_response=False, no_answer=False):
-    if full_response == True:
+  def _parse_response(self, response, full=False, no_answer=False):
+    if full == True:
       return response.json()
     else:
       if no_answer == True:
@@ -149,6 +152,6 @@ class Client(object):
         expected_status = [ expected_status ]
 
       if response.status_code not in expected_status:
-        raise StatusCodeException("Status code mismatch expected %s but got" % expected_status)
+        raise StatusCodeException("Status code mismatch expected %s but got %s" % (expected_status, response.status_code))
 
     return self._parse_response(response, full=full, no_answer=no_answer)

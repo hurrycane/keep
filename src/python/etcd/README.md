@@ -90,7 +90,6 @@ Keys in *etcd* can expire after a specified number of seconds.
 
 ```python
 client.set("message", "value", ttl=5)
-
 ```
 
 After 5 seconds the key will be deleted and None will be returned if you
@@ -158,10 +157,8 @@ for item in client.listdir("queue"):
 You can watch for changes for a key:
 
 ```python
-
 for change in client.watch("queue", recursive=True):
   print change
-
 ```
 
 ### Atomic CAS (Compare and Swap) and CAD (Compare and Delete)
@@ -172,7 +169,6 @@ client.set("foo", "bar")
 
 # compare and swap for value
 client.set("foo", "barez", if_value="bar")
-
 ```
 
 It also supports:
