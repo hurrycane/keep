@@ -213,3 +213,8 @@ leader = client.loader("key", "value", ttl=60, timeout=10)
 
 * give the constructor a consistent=True param so that you don't have to pass
 it everytime you're making a call.
+* if some sort of Adapter is used we can expose a Future-based API. See:
+  [Requests Docs](http://docs.python-requests.org/en/latest/user/advanced/#transport-adapters)
+* when a peer fails for a given ammount of retries (3 retries + exponential
+  backoff of 2s) when mark the host as down and don't use again until a
+  specific amount of time passes.
