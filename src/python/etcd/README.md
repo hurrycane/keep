@@ -205,8 +205,24 @@ leader = client.loader("key", "value", ttl=60, timeout=10)
 
 ## Changes
 
-## TODOs & Ideas
+## TODOs
+* Future Based API on gevent.
+* SSL support
+* retries + exponential backoff.
+* Remove Full since it's stupid to support it.
+  Just create an EtcdResponse object.
+* Locks need to support the standard Locks library from python threading.
+* Leader election needs a better support.
+* Validate HTTP verb.
+* Async observers (watches)
+* Up-to-date cluster status - periodic update of peers list.
 
+## Ideas
+
+* Async:
+  z = etcd.AsyncClient(host,peers,discovery)
+  f = z.get('...') # returns greenlet
+  f.get # blocking
 * give the constructor a consistent=True param so that you don't have to pass
 it everytime you're making a call.
 * if some sort of Adapter is used we can expose a Future-based API. See:

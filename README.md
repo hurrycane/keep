@@ -13,16 +13,27 @@ Checkout the Keep
 git clone git@github.com:hurrycane/keep.git
 ```
 
-in the *keep* directory run:
+Create a virtualenv and install:
 
 ```
-./pants
+pip install twitter.pants
 ```
-
-this bootstraps the build tool.
 
 To actually build the PEX file for the keep agent run:
 
 ```
-./pants src/python/keep:keep_agent
+pants src/python/keep:keep_agent
 ```
+
+For running tests:
+
+```
+pants tests/python
+```
+
+## Powered by:
+
+* twitter.pants
+* twitter.common.app
+* requests / grequests
+* gevent

@@ -10,11 +10,15 @@ class Client(object):
                debug=False):
 
     if host and port:
+      # TODO: Wrong because we have single point of failure here. Need to fetch
+      # the machines endpoint and update the peers list.
+      # Also update the failure model if no machines are reachable within the
+      # retries interval - this list needs to be updated
       self.peers = [ { "host": host, "port": port } ]
     elif peers and all(self.peers, lambda peer: peer["host"] and peer["port"]):
       self.peers = peers
     elif discovery and discovery.startswith("http://"):
-      response = request.get(discovery)
+      response = requests.get(discovery)
 
       try:
         self.peers = []
