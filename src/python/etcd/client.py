@@ -1,5 +1,7 @@
 import random
-import requests
+
+from .response import EtcdResponse
+from .adapter import HTTPAdapter
 
 class StatusCodeException(Exception):
   pass
@@ -7,44 +9,47 @@ class StatusCodeException(Exception):
 class Client(object):
 
   def __init__(self, host=None, port=None, peers=None, discovery=None,
-               debug=False):
+               debug=False, adapter=HTTPAdapter, response_class=EtcdResponse):
+
+    self.adapter = adapter()
+    self.response_class = response_class
 
     if host and port:
-      # TODO: Wrong because we have single point of failure here. Need to fetch
-      # the machines endpoint and update the peers list.
-      # Also update the failure model if no machines are reachable within the
-      # retries interval - this list needs to be updated
+      # TODO: If a peer fails than refresh the whole peers list.
       self.peers = [ { "host": host, "port": port } ]
     elif peers and all(self.peers, lambda peer: peer["host"] and peer["port"]):
       self.peers = peers
     elif discovery and discovery.startswith("http://"):
-      response = requests.get(discovery)
-
-      try:
-        self.peers = []
-        for peer in response["node"]["nodes"]:
-          host = peer["value"][7:].split(":")
-
-          self.peers.append({
-            "host": host[0],
-            "port": host[1]
-          })
-
-      except:
-        raise AttributeError("Discovery response is malformed")
-
+      self.peers = self._get_peers_by_discovery(discovery)
     else:
       raise AttributeError("Provide either host, port, peers or discovery\
                            token")
 
     self.next_peer = 1
+    self.ping()
 
-    # Make a ping request to fail fast if no connectivity exists.
-    self._execute_command('GET', "machines", None, no_answer=True,
-                          expected_status=200)
+  def _get_peers_by_discovery(self):
+    response = self.adapter.get(discovery)
 
-  def get(self, name, full=False, consistent=True):
-    return self._execute_command('GET', "keys", name, full=full)
+    try:
+      peers = []
+      for peer in response["node"]["nodes"]:
+        host = peer["value"][7:].split(":")
+
+        peers.append({
+          "host": host[0],
+          "port": host[1]
+        })
+
+      return peers
+    except:
+      raise AttributeError("Discovery response is malformed")
+
+  def ping(self):
+    self._execute_command('GET', "machines", None, expected_status=200)
+
+  def get(self, name, consistent=True):
+    return self._execute_command('GET', "keys", name)
 
   def set(self, name, value, full=False, ttl=None, consistent=True):
     data = { 'value': value }
@@ -101,35 +106,18 @@ class Client(object):
   def _base_url(self, peer):
     return "http://%s:%s/v2" % (peer["host"], peer["port"])
 
-  def _parse_response(self, response, full=False, no_answer=False):
-    if full == True:
-      return response.json()
-    else:
-      if no_answer == True:
-        return None
-
-      return response.json()["node"]["value"]
-
   def _get_peer(self):
     self.next_peer = random.randint(1, len(self.peers))
     return self.peers[self.next_peer-1]
 
-  def _prepare_request(self, verb, prefix, path, data, timeout):
-    partial_requests = getattr(requests, verb.lower())
-
+  def _prepare_url(self, prefix, path):
     peer = self._get_peer()
     url = "%s/%s" % (self._base_url(peer), prefix)
 
     if path:
       url += "/%s" % path
 
-    if data == None:
-      data = {}
-
-    def do_request():
-      return partial_requests(url, data=data, timeout=timeout)
-
-    return do_request
+    return url
 
   """executes the actual HTTP request
   :param verb: http_verb one of GET, POST, PUT, DELETE
@@ -137,25 +125,26 @@ class Client(object):
   :param path:
   :param data: dict (key/value pairs) that makes the request body (in case of
                POST/PUT)
-  :param full: returns the full response if provided.
-  :param no_answer: all the requests responses are parsed unless no_answer is
-                    provided
   :param timeout: Timeout for waiting for requests - passed to requests.
-                  Default value is 60s.
+                  Default value is 5s.
   :param expected_status: You can validate the response by validating the
                           response status of the request.
   """
-  def _execute_command(self, verb, prefix, path, data=None, full=False,
-                       no_answer=False, timeout=60, expected_status=None):
+  def _execute_command(self, verb, prefix, path, data=None, timeout=5,
+                       expected_status=None):
 
-    partial_request = self._prepare_request(verb, prefix, path, data, timeout)
-    response = partial_request()
+    url = self._prepare_url(prefix, path)
+    response = self.adapter.do_request(verb, url, data, timeout)
+    return self.response_class(response, expected_status)
 
-    if expected_status:
-      if type(expected_status) != list and type(expected_status) != set:
-        expected_status = [ expected_status ]
+  #partial_request = self._prepare_request(verb, prefix, path, data, timeout)
+  #  response = partial_request()
 
-      if response.status_code not in expected_status:
-        raise StatusCodeException("Status code mismatch expected %s but got %s" % (expected_status, response.status_code))
+  #  if expected_status:
+  #    if type(expected_status) != list and type(expected_status) != set:
+  #      expected_status = [ expected_status ]
 
-    return self._parse_response(response, full=full, no_answer=no_answer)
+  #    if response.status_code not in expected_status:
+  #      raise StatusCodeException("Status code mismatch expected %s but got %s" % (expected_status, response.status_code))
+
+  #  return self._parse_response(response, full=full, no_answer=no_answer)
