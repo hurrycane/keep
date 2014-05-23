@@ -21,13 +21,17 @@ app.add_option('--etcd_port', dest='etcd_port', default=4001,
 app.add_option('--discovery', dest='discovery', default=None,
                help="Token used for the discovery service")
 
-from keep.actors import ActorContext
+from actors import ActorContext
 from keep.agent import KeepRpcActor
+
+from keep.actors.binding_specs import ActorEtcdBindingSpec
 #from crow import CrowContext
 
 def main(args, options):
   injector = pinject.new_object_graph(
     binding_specs=[
+      ActorEtcdBindingSpec(options.etcd_host, options.etcd_port,
+                           options.discovery)
     ]
   )
 

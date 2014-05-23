@@ -13,7 +13,7 @@ class ActorEtcdBindingSpec(pinject.BindingSpec):
   def configure(self, bind):
 
     if self._discovery:
-      bind('etcd_handler', to_instance=etcd.Client(discovery=self._discovery))
+      bind('etcd_handler', to_instance=etcd.AsyncClient(discovery=self._discovery))
     else:
-      bind('etcd_handler', to_instance=etcd.Client(host=self_host,
-                                                   port=self._port))
+      bind('etcd_handler', to_instance=etcd.AsyncClient(host=self._host,
+                                                        port=self._port))

@@ -11,6 +11,8 @@ python_binary(
   name = 'keep_agent',
   source = "agent/runner.py",
   dependencies = [
+    pants('src/python/actors/BUILD:actors_library'),
+    pants('src/python/etcd/BUILD:etcd_library'),
     pants(':keep_library'),
   ],
 )
