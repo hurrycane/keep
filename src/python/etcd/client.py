@@ -19,8 +19,10 @@ class Client(object):
     if host and port:
       # TODO: If a peer fails than refresh the whole peers list.
       self.peers = [ { "host": host, "port": port } ]
-    elif peers and all(self.peers, lambda peer: peer["host"] and peer["port"]):
-      self.peers = peers
+    elif peers and all([len(peer.split(":")) == 2 for peer in peers]):
+      self.peers = [
+        { "host" : peer[0], "port" : peer[1] } for peer in [peer.split(":") for peer in peers]
+      ]
     elif discovery and discovery.startswith("http://"):
       self.peers = self._get_peers_by_discovery(discovery)
     else:
