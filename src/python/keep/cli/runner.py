@@ -38,6 +38,11 @@ from keep.agent import KeepRpcActor
 from keep.actors.binding_specs import *
 
 def main(args, options):
+  # lock a build
+  # get latest version of a service
+  # compute the next version of a service
+  # finish build
+
   injector = pinject.new_object_graph(
     binding_specs=[
       ActorEtcdBindingSpec(options.etcd_host, options.etcd_port,
