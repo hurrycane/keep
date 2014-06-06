@@ -3,6 +3,8 @@ import random
 from .response import EtcdResponse
 from .adapter import HTTPAdapter
 
+import requests
+
 class StatusCodeException(Exception):
   pass
 
@@ -28,7 +30,7 @@ class Client(object):
     self.next_peer = 1
     self.ping()
 
-  def _get_peers_by_discovery(self):
+  def _get_peers_by_discovery(self, discovery):
     response = self.adapter.get(discovery)
 
     try:
@@ -46,18 +48,18 @@ class Client(object):
       raise AttributeError("Discovery response is malformed")
 
   def ping(self):
-    self._execute_command('GET', "machines", None, expected_status=200)
+    self._execute_command('GET', "machines", None, expected_status=200,
+                          expect_json=False)
 
   def get(self, name, consistent=True):
     return self._execute_command('GET', "keys", name)
 
-  def set(self, name, value, full=False, ttl=None, consistent=True):
+  def set(self, name, value, ttl=None, consistent=True):
     data = { 'value': value }
     if ttl:
       data['ttl'] = ttl
 
-    return self._execute_command('PUT', "keys", name, data,
-                                 full=full)
+    return self._execute_command('PUT', "keys", name, data)
 
   def mkdir(self, name, value=None, ttl=None, full=False, consistent=True):
     data = { 'dir': True }
@@ -98,10 +100,13 @@ class Client(object):
   def watch(self, name, recursive=False):
     while True:
       try:
-        response = self._execute_command('GET', "keys", "%s?wait=true&recursive=%s" % (name, recursive), full=True)
+        response = self._execute_command('GET', "keys", "%s?wait=true&recursive=%s" % (name, recursive))
         yield response
       except requests.exceptions.Timeout:
         pass
+
+  def lock(self, ket, ttl=60, index=None):
+    pass
 
   def _base_url(self, peer):
     return "http://%s:%s/v2" % (peer["host"], peer["port"])
@@ -129,13 +134,15 @@ class Client(object):
                   Default value is 5s.
   :param expected_status: You can validate the response by validating the
                           response status of the request.
+  :param expect_json: There are some edge cases in etcd when the response
+                      is not json so we need to parse it separatly.
   """
   def _execute_command(self, verb, prefix, path, data=None, timeout=5,
-                       expected_status=None):
+                       expected_status=None, expect_json=True):
 
     url = self._prepare_url(prefix, path)
     response = self.adapter.do_request(verb, url, data, timeout)
-    return self.response_class(response, expected_status)
+    return self.response_class(response, expected_status, expect_json)
 
   #partial_request = self._prepare_request(verb, prefix, path, data, timeout)
   #  response = partial_request()

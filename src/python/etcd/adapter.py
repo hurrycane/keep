@@ -15,4 +15,5 @@ class AsyncHTTPAdapter(Adapter):
 
   def do_request(self, verb, url, data=None, timeout=5):
     partial = getattr(grequests, verb.lower())
-    return partial(url, data=data, timeout=timeout)
+    prepared = partial(url, data=data, timeout=timeout)
+    return grequests.send(prepared)
