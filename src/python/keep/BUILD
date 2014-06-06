@@ -22,9 +22,8 @@ python_binary(
   name = 'keep-cli',
   source = "cli/runner.py",
   dependencies = [
-    pants('src/python/actors/BUILD:actors_library'),
+    python_requirement("boto>=2.29.1"),
     pants('src/python/etcd/BUILD:etcd_library'),
-    pants('src/python/crow/BUILD:crow_library'),
     pants(':keep_library'),
   ],
 )
