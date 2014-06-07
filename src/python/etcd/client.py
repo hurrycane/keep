@@ -81,9 +81,7 @@ class Client(object):
 
 
   def delete(self, name, full=False):
-    return self._execute_command('DELETE', "keys", name, no_answer=True,
-                                 full=full)
-
+    return self._execute_command('DELETE', "keys", name, expect_json=False)
   def refresh_dir(self, name):
     pass
 
