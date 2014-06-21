@@ -1,0 +1,15 @@
+Metadata-Version: 1.1
+Name: keep
+Version: 0.0.1
+Summary: A distributed docker runner
+Home-page: https://github.com/hurrycane/keep
+Author: Bogdan Gaza
+Author-email: bc.gaza@gmail.com
+License: UNKNOWN
+Description: UNKNOWN
+Keywords: keep,docker,etcd,distributed
+Platform: any
+Classifier: Topic :: System :: Distributed Computing
+Classifier: Topic :: Software Development :: Libraries
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Topic :: Database :: Front-Ends

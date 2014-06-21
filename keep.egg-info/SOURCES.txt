@@ -1,0 +1,7 @@
+setup.py
+keep/__init__.py
+keep.egg-info/PKG-INFO
+keep.egg-info/SOURCES.txt
+keep.egg-info/dependency_links.txt
+keep.egg-info/entry_points.txt
+keep.egg-info/top_level.txt

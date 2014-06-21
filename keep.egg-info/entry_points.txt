@@ -1,0 +1,3 @@
+[console_scripts]
+keep-agent = keep.agent.runner:execute_from_cli
+
