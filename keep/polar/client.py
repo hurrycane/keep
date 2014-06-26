@@ -169,6 +169,7 @@ class PolarClient(object):
     prepared = self._prepare(request)
 
     def func():
+      print request.method, request.url, request.query
       return prepared()
 
     self.handler.completion_queue.put((func, async_object))

@@ -17,7 +17,8 @@ When I read a key i check it on that directory. If it exists it means
 that the item is reserved.
 """
 
-from Queue import Queue
+import gevent
+from gevent.queue import Queue
 
 class LifoQueue(object):
 
@@ -43,8 +44,10 @@ class LifoQueue(object):
     nodes, stats = self.client.get_children("queue/%s" % name, self._watch)
 
     for node in nodes:
-      self.client.delete_async(node["key"][1:])
       self.queue.put(node["value"])
+      self.client.delete_async(node["key"][1:])
+
+    self.client.get_children("queue/%s" % name, self._watch)
 
   def get(self, block=True, timeout=None):
     return self.queue.get(block, timeout)
