@@ -17,8 +17,15 @@ When I read a key i check it on that directory. If it exists it means
 that the item is reserved.
 """
 
+import random
+from functools import partial
+
+import requests
+
 import gevent
 from gevent.queue import Queue
+
+from keep.polar.protocol import Request
 
 class LifoQueue(object):
 
@@ -29,25 +36,80 @@ class LifoQueue(object):
     """
 
     self.client = client
+    self.handler = client.handler
     self.queue = Queue(maxsize)
 
-    # check if key exists otherwise get it
-    node, stats = self.client.get("queue/%s" % name)
+    self.queue_name = "queue-body-%s" % name
+    self.queue_head = "queue-heads-%s" % name
+
+    # check if key exists otherwise create it
+    node, stats = self.client.get(self.queue_name)
 
     if node == None:
-      self.client.mkdir("queue/%s" % name)
+      node, stats = self.client.mkdir(self.queue_name)
+      self.client.set(self.queue_head, stats["node"]["modifiedIndex"])
 
-    _, stats = self.client.set("queue/%s/_last_modified_index" % name, -1)
+      head_index = stats["node"]["modifiedIndex"]
+    else:
+      head_index, _ = self.client.get(self.queue_head)
 
-    wait_index = stats["node"]["modifiedIndex"]
+    result = self.handler.async_result()
+    result.parser = None
 
-    nodes, stats = self.client.get_children("queue/%s" % name, self._watch)
+    self.client.handler.callback_queue.put((
+      partial(self._start, head_index), result
+    ))
 
-    for node in nodes:
-      self.queue.put(node["value"])
-      self.client.delete_async(node["key"][1:])
+  def _start(self, head_index):
+    request = Request("GET", "/v2/keys/%s" % self.queue_name,
+                      query=[
+                        "wait=true",
+                        "waitIndex=%s" % (int(head_index)+1),
+                        "recursive=true"
+                      ])
 
-    self.client.get_children("queue/%s" % name, self._watch)
+    prepared = self.client._prepare(request)
+
+    try:
+      timeout = random.randint(15, 30)
+      result = prepared(timeout=timeout/100.0)
+
+      parser = self.handler.async_result().parser
+      item = parser.parse(result)
+
+      queue_item, stats = item
+
+      # it should be an add, if it is with the head that you have right now
+      # try to change the head to the modifiedIndex if you succed
+      # than you have the element
+
+      if stats["action"] != "create":
+        return
+
+      new_head_index = stats["node"]["modifiedIndex"]
+      value, stats = self.client.cas(self.queue_head, new_head_index, head_index)
+
+      # if CAS failed
+      if value == None and stats["errorCode"] == 101:
+        split_cause = stats["cause"][1:-1].split(" ")
+
+        if int(split_cause[0]) == head_index:
+          head_index = int(split_cause[-1])
+        else:
+          head_index = int(split_cause[0])
+
+      else:
+        head_index = new_head_index
+
+        self.queue.put(queue_item)
+
+    except requests.exceptions.Timeout:
+      pass
+    finally:
+      self.client.handler.callback_queue.put((
+        partial(self._start, head_index),
+        self.handler.async_result()
+      ))
 
   def get(self, block=True, timeout=None):
     return self.queue.get(block, timeout)
@@ -65,10 +127,3 @@ class LifoQueue(object):
 
   def task_done(self):
     pass
-
-  def _watch(self, result):
-    value, stats = result
-
-    if stats["action"] == "create":
-      self.client.delete_async(stats["node"]["key"][1:])
-      self.queue.put(value)

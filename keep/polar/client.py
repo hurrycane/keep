@@ -4,8 +4,11 @@ import random
 from functools import partial
 
 import requests
+from gevent import sleep
+
 from keep.polar.utils import retry
-from keep.polar.protocol import Watcher, Request, LifoQueue
+from keep.polar.protocol import Request, LifoQueue
+from keep.polar.protocol import RequestExecutor
 
 """
 from polar.client import PolarClient
@@ -38,14 +41,20 @@ class PolarClient(object):
     self.timeout = timeout
     self.randomize_hosts = randomize_hosts
 
+    self._request_executor = RequestExecutor(client=self)
+    self._queue = self._request_executor.queue
+
   def start(self):
     # ping
     self.handler.start()
+    self._request_executor.start()
 
     self.ping()
 
     if self.fetch_hosts:
       self.fetch_machines()
+
+    sleep(2)
 
   def fetch_machines(self):
     async_result = self.handler.async_result()
@@ -63,7 +72,7 @@ class PolarClient(object):
 
   def set_async(self, path, value):
     async_result = self.handler.async_result()
-    self._call(Request("PUT", "/v2/keys/%s" % path, {
+    self._call(Request("PUT", "/v2/keys/%s" % path, data={
       "value": value
     }), async_result)
 
@@ -115,7 +124,6 @@ class PolarClient(object):
 
   def mkdir_async(self, path):
     async_result = self.handler.async_result()
-    async_result.parser = None
 
     self._call(Request("PUT", "/v2/keys/%s" % path, data={
       'dir': True
@@ -123,10 +131,8 @@ class PolarClient(object):
 
     return async_result
 
-    pass
-
   def mkdir(self, path):
-    self.mkdir_async(path).get()
+    return self.mkdir_async(path).get()
 
   def delete_async(self, path):
     async_result = self.handler.async_result()
@@ -138,6 +144,24 @@ class PolarClient(object):
 
   def delete(self, path):
     self.delete_async(path).get()
+
+  def cas_async(self, path, future_value, prev_value):
+    async_result = self.handler.async_result()
+
+    self._call(
+      Request(
+        "PUT",
+        "/v2/keys/%s" % path,
+        [ "prevValue=%s" % prev_value ],
+        data={ "value": future_value},
+      ),
+      async_result
+    )
+
+    return async_result
+
+  def cas(self, path, future_value, prev_value):
+    return self.cas_async(path, future_value, prev_value).get()
 
   def _get_wait_index(self, stats):
     if "nodes" in stats["node"]:
@@ -168,11 +192,7 @@ class PolarClient(object):
   def _call(self, request, async_object):
     prepared = self._prepare(request)
 
-    def func():
-      print request.method, request.url, request.query
-      return prepared()
-
-    self.handler.completion_queue.put((func, async_object))
+    self._queue.put((prepared, async_object))
 
   def _get_peer(self):
     if self.randomize_hosts == True:
