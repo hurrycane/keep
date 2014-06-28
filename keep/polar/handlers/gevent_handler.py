@@ -47,7 +47,6 @@ class GeventHandler(object):
     self._workers = []
 
     self.callback_queue = self.queue_impl()
-    self.completion_queue = self.queue_impl()
 
   def requests_impl(self):
     return Session()
@@ -73,10 +72,6 @@ class GeventHandler(object):
     return gevent.spawn(greenlet_worker)
 
   def start(self):
-    #for queue in (self.completion_queue, self.callback_queue):
-    w = self._create_greenlet_worker(self.completion_queue, "Callbacks")
-    self._workers.append(w)
-
     w = self._create_greenlet_worker(self.callback_queue, "Watchers")
     self._workers.append(w)
 
@@ -84,7 +79,7 @@ class GeventHandler(object):
 
   def stop(self):
 
-    for queue in (self.completion_queue, self.callback_queue):
+    for queue in (self.callback_queue, ):
       queue.put(_STOP)
 
     self._workers.reverse()
@@ -94,10 +89,12 @@ class GeventHandler(object):
       worker.join()
 
     self.callback_queue = self.queue_impl()
-    self.completion_queue = self.queue_impl()
 
     if hasattr(atexit, "unregister"):
       atexit.unregister(self.stop)
 
   def async_result(self):
     return AsyncResult(self)
+
+  def spawn(self, func, *args, **kwargs):
+    return gevent.spawn(func, *args, **kwargs)

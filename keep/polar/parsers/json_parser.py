@@ -1,6 +1,7 @@
 import ujson
 
 NOT_FOUND = 100
+TEST_FAILED = 101
 
 class JSONParser(object):
 
@@ -22,6 +23,9 @@ class JSONParser(object):
       error_code = parsed_value["errorCode"]
 
       if error_code == NOT_FOUND:
+        return None, parsed_value
+
+      if error_code == TEST_FAILED:
         return None, parsed_value
 
     else:

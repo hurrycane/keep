@@ -101,7 +101,7 @@ class LifoQueue(object):
       else:
         head_index = new_head_index
 
-        self.queue.put(queue_item)
+        self.queue.put((queue_item, stats))
 
     except requests.exceptions.Timeout:
       pass

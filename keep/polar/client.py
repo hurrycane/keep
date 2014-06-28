@@ -7,7 +7,7 @@ import requests
 from gevent import sleep
 
 from keep.polar.utils import retry
-from keep.polar.protocol import Request, LifoQueue
+from keep.polar.protocol import Request, LifoQueue, Watcher
 from keep.polar.protocol import RequestExecutor
 
 """
@@ -170,8 +170,17 @@ class PolarClient(object):
       pass
       # is dir and is sorted
 
-  def _watch(self, path, request, watch_func, is_dir=False):
-    return Watcher(self, path, request, watch_func, is_dir)
+  def watch(self, path, watch_func, wait_index=None, is_dir=False):
+    request = Request(
+      "GET",
+      "/v2/keys/%s" % path,
+      query=["recursive=true", "sorted=true"]
+    )
+
+    self._watch(path, request, watch, wait_index=None, is_dir=is_dir)
+
+  def _watch(self, path, request, watch_func, wait_index=None, is_dir=False):
+    return Watcher(self, path, request, watch_func, wait_index, is_dir)
 
   def _prepare(self, request):
     """
@@ -192,6 +201,7 @@ class PolarClient(object):
   def _call(self, request, async_object):
     prepared = self._prepare(request)
 
+    print request.method, request.url, request.query, request.data
     self._queue.put((prepared, async_object))
 
   def _get_peer(self):
