@@ -26,6 +26,7 @@ import gevent
 from gevent.queue import Queue
 
 from keep.polar.protocol import Request
+from keep.polar.exceptions import StaleData
 
 class LifoQueue(object):
 
@@ -45,13 +46,25 @@ class LifoQueue(object):
     # check if key exists otherwise create it
     node, stats = self.client.get(self.queue_name)
 
-    if node == None:
+    head_index = None
+
+    # Problem: what happens when head_index is screwed
+    # and we want to revert it. If we find it not parseable
+    # we se it to the latest etcd index
+
+    if node != None:
+      head_index, stats = self.client.get(self.queue_head)
+
+      try:
+        head_index = int(head_index)
+      except ValueError:
+        head_index = int(stats["stats"]["X-Etcd-Index"])
+
+    else:
       node, stats = self.client.mkdir(self.queue_name)
       self.client.set(self.queue_head, stats["node"]["modifiedIndex"])
 
       head_index = stats["node"]["modifiedIndex"]
-    else:
-      head_index, _ = self.client.get(self.queue_head)
 
     result = self.handler.async_result()
     result.parser = None
@@ -105,6 +118,9 @@ class LifoQueue(object):
 
     except requests.exceptions.Timeout:
       pass
+    except StaleData:
+      _, stats = self.client.get("")
+      wait_index = int(stats["stats"]["X-Etcd-Index"])
     finally:
       self.client.handler.callback_queue.put((
         partial(self._start, head_index),

@@ -1,4 +1,4 @@
-from .handlers.threading_handler import ThreadingHandler
+#from .handlers.threading_handler import ThreadingHandler
 
 import random
 from functools import partial
@@ -70,16 +70,20 @@ class PolarClient(object):
 
     async_result.rawlink(callback)
 
-  def set_async(self, path, value):
+  def set_async(self, path, value, ttl=None):
     async_result = self.handler.async_result()
-    self._call(Request("PUT", "/v2/keys/%s" % path, data={
-      "value": value
-    }), async_result)
+
+    data = { "value": value }
+
+    if ttl:
+      data["ttl"] = ttl
+
+    self._call(Request("PUT", "/v2/keys/%s" % path, data=data), async_result)
 
     return async_result
 
-  def set(self, path, value):
-    return self.set_async(path, value).get()
+  def set(self, path, value, ttl=None):
+    return self.set_async(path, value, ttl=ttl).get()
 
   def get_async(self, path, watch):
     async_result = self.handler.async_result()
@@ -177,7 +181,7 @@ class PolarClient(object):
       query=["recursive=true", "sorted=true"]
     )
 
-    self._watch(path, request, watch, wait_index=None, is_dir=is_dir)
+    self._watch(path, request, watch_func, wait_index=None, is_dir=is_dir)
 
   def _watch(self, path, request, watch_func, wait_index=None, is_dir=False):
     return Watcher(self, path, request, watch_func, wait_index, is_dir)
@@ -200,8 +204,9 @@ class PolarClient(object):
 
   def _call(self, request, async_object):
     prepared = self._prepare(request)
+    print request
 
-    print request.method, request.url, request.query, request.data
+    #print request.method, request.url, request.query, request.data
     self._queue.put((prepared, async_object))
 
   def _get_peer(self):

@@ -21,7 +21,6 @@ class Watcher(object):
 
     if wait_index == None:
       _, stats = client.get(path)
-
       wait_index = int(stats["stats"]["X-Etcd-Index"])
 
     self.client.handler.callback_queue.put((
@@ -46,15 +45,11 @@ class Watcher(object):
       self.request.data
     )
 
-    print "Watcher", request.method, request.url
-
     prepared = self.client._prepare(request)
 
     try:
       # do the request and wait for 0.2 seconds
       result = prepared(timeout=0.2)
-
-      print "Event!"
 
       # if we're on this part of the try method it means that the etcd request
       # passed and not timed-out which means we need to call the callback
