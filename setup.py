@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-requires = []
+requires = ["click>=2.1", "requests>=2.3.0", "ujson>=1.33", "gevent>=1.0.1"]
 
 setup(name="keep",
       version="0.0.1",
