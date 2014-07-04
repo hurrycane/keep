@@ -1,7 +1,6 @@
 from copy import deepcopy
 
 from gevent.queue import Queue
-
 from actor_context import ActorContext
 
 class Actor(object):
@@ -13,6 +12,9 @@ class Actor(object):
     self.context.actor = self
 
     self.queue = Queue()
+
+  def actor_selection(self, path):
+    return self.context.ref.actor_selection(path)
 
   @classmethod
   def props(cls, **kwargs):

@@ -70,12 +70,17 @@ class ActorSystem(object):
 
     self.context = context
 
+  def actor_selection(self, path):
+    return self.context.ref.actor_selection(path)
+
   def _spawn_actor(self, context, actor_class):
+    # ref <-|-> context <-|-> actor -> queue
+
     new_ref = context.ref.create_child_ref()
-    new_context = ActorContext(new_ref, self)
+    new_ref.context = ActorContext(new_ref, self)
 
     kwargs = actor_class._props
-    kwargs["context"] = new_context
+    kwargs["context"] = new_ref.context
 
     actor = actor_class(**kwargs)
 
