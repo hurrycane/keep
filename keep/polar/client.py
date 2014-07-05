@@ -204,7 +204,7 @@ class PolarClient(object):
 
   def _call(self, request, async_object):
     prepared = self._prepare(request)
-    print request
+    #print request
 
     #print request.method, request.url, request.query, request.data
     self._queue.put((prepared, async_object))

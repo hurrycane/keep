@@ -27,7 +27,7 @@ class JSONParser(object):
 
     parsed_value = ujson.loads(value.text)
 
-    warning(parsed_value)
+    #warning(parsed_value)
 
     parsed_value["stats"] = value.headers
     parsed_value["stats"]["status_code"] = value.status_code
