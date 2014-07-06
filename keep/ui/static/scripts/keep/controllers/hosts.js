@@ -8,7 +8,7 @@
  * Controller of the keepUiApp
  */
 angular.module('keepUiApp')
-  .controller('AboutCtrl', function ($scope) {
+  .controller('HostsCtrl', function ($scope) {
     $scope.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',

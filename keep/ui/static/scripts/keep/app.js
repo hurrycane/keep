@@ -12,18 +12,21 @@ angular
   .module('keepUiApp', [
     'ngRoute',
     'ngResource',
+    'ngSanitize'
   ])
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
-        templateUrl: 'views/main.html',
-        controller: 'MainCtrl'
+        templateUrl: 'static/views/index.html',
+        controller: 'ServiceCtrl'
       })
-      .when('/about', {
-        templateUrl: 'views/about.html',
-        controller: 'AboutCtrl'
+      .when('/hosts', {
+        templateUrl: 'static/views/hosts.html',
+        controller: 'HostsCtrl'
       })
       .otherwise({
         redirectTo: '/'
       });
   });
+
+console.log("!")

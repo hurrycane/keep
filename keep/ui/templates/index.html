@@ -36,17 +36,18 @@
             <a href='#/'>Services</a>
             </li>
             <li>
-            <a href='#about'>Hosts</a>
+            <a href='#hosts'>Hosts</a>
             </li>
           </ul>
           <ul class='nav navbar-nav navbar-right'>
+            <button class="btn btn-default btn-embossed navbar-btn" href="/authorize" type="button">Deploy Service</button>
           </ul>
         </div>
       </div>
     </div>
 
     <div class="container">
-      Start doing your next awesomeness here.
+      <div ng-view=""></div>
     </div>
 
 
@@ -67,12 +68,8 @@
     <script src="static/scripts/angular-route.min.js"></script>
 
     <script src="static/scripts/keep/app.js"></script>
-    <script src="static/scripts/keep/controllers/main.js"></script>
-    <script src="static/scripts/keep/controllers/about.js"></script>
-
-    <script src="static/scripts/keep/app.js"></script>
-    <script src="static/scripts/keep/controllers/main.js"></script>
-    <script src="static/scripts/keep/controllers/about.js"></script>
+    <script src="static/scripts/keep/controllers/service.js"></script>
+    <script src="static/scripts/keep/controllers/hosts.js"></script>
 
   </body>
 </html>
