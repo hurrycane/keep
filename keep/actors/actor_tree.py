@@ -1,6 +1,6 @@
 from urlparse import urlparse
 
-class ActorRef(object):
+class ActorNode(object):
 
   def __init__(self, parent):
     self.children = []
@@ -9,7 +9,7 @@ class ActorRef(object):
 
   def create_child_ref(self):
     # self.children
-    new_ref = ActorRef(self)
+    new_ref = ActorNode(self)
     self.children.append(new_ref)
 
     return new_ref
@@ -45,7 +45,7 @@ class ActorRef(object):
     """
     Examples: /ceva/../altceva/*
 
-    It returns ActorRefs
+    It returns ActorLead
     """
     uri = urlparse(query)
 
@@ -63,10 +63,24 @@ class ActorRef(object):
     self._context = value
 
   def tell(self, message):
-    self.context.actor.queue.put(message)
+    """
+    Tell this actor something:
+    { id: UUID-4, message: "", kind: "", parent_ref: actor_ref }
+    """
+
+    if message["kind"] == "response":
+      response_id = message["id"]
+
+      if response_id not in self._waiting:
+        self._waiting[response_id] = Queue()
+
+      self._waiting[response_id].put(message.body)
+
+    else:
+      self.context.actor.queue.put(message)
 
   def ask(self, message, block=True, timeout=-1):
-    pass
+    self.context.actor.queue.put(message)
 
   @property
   def greenlet(self):
@@ -79,7 +93,7 @@ class ActorRef(object):
 class ActorTree(object):
 
   def __init__(self):
-    self._root = ActorRef(parent=None)
+    self._root = ActorNode(parent=None)
 
   @property
   def root(self):

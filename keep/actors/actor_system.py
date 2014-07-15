@@ -1,100 +1,65 @@
 """
 What is the purpose of this Actor system?
-To have an actor that reads from Queue for different kind of events.
-
-when it receives a message it delegates it to the proper actor.
-Each actors runs into it's own greenlet and it blocks async.
-Each message is sent async.
-
---> queue --> routing --> actor.
-                      --> actor.
-
-Only one instance of Actor per context is permited - yes
+To start different services that manage message passing for local and
+remote actors.
 """
 
 import gevent
 from gevent.queue import Queue
 
-from keep.actors import ActorContext, RootActor, ActorTree
+from keep.actors import ActorHierarchy, ActorExecutor, ActorRemoting
+from keep.actors import ActorMessaging
+from keep.actors import RootActor
 
 _STOP = object()
 
-class ActorRouting(object):
-
-  def __init__(self, actor_system, name):
-    self.system = actor_system
-    self.actor_tree = ActorTree()
-
-  @property
-  def tree(self):
-    return self.actor_tree
-
-  #def actor_selection(self, path):
-  #  self.actor_tree.select(path)
-
 class ActorSystem(object):
   """
-  Keeps track of the whole actor lifecycle
+  Starts and configures different components
   """
 
-  def __init__(self, polar_client, name):
+  def __init__(self, polar_client, name, hierarchy_class=ActorHierarchy,
+               executor_class=ActorExecutor, remoting_class=ActorRemoting,
+               messaging_class=ActorMessaging):
+
     self._client = polar_client
     self._actor_name = name
 
-    self._actor_routing = ActorRouting(self, name)
+    self._actor_hierarchy = hierarchy_class(self)
+    self._actor_messaging = messaging_class(self._actor_hierarchy)
 
-    self._create_root_actor()
+    self._actor_executor = executor_class(self._actor_messaging)
+    self._actor_remoting = remoting_class(self._client, self)
 
-    self._queue = self._client.Queue("actors-%s" % self._actor_name)
-    self._spawn(self._inbox_handler)
+    self._init_system()
+    #self._queue = self._client.Queue("actors-%s" % self._actor_name)
+    #self._spawn(self._inbox_handler)
 
-  def _spawn(self, func, *args, **kwargs):
-    gevent.spawn(func, *args, **kwargs)
+  def __enter__(self):
+    return self
 
-  def _inbox_handler(self):
-    while True:
-      item = self._queue.get()
-      print "ActorSystemInbox %s" % item
+  def __exit__(self, exc_type, exc_value, traceback):
+    pass
+    #self._actor_executor.join()
 
   def actor_of(self, actor_class):
-    return self._spawn_actor(self.context, actor_class)
+    return self.context.actor_of(actor_class)
 
-  def _create_root_actor(self):
-    root_ref = self._actor_routing.tree.root
-    context = ActorContext(root_ref, self)
+  def _init_system(self):
+    """
+    Creates a RootActor - inits the hierarchi and creates a context
+    for the actor system.
+    """
 
-    actor = RootActor(context)
+    self._context = self._actor_hierarchy.init(RootActor)
 
-    greenlet = self._spawn(self._actor_coroutine, actor)
-    root_ref.greenlet = greenlet
+  def actor_selection(self, query):
+    return self.context.actor_selection(query)
 
-    self.context = context
+  @property
+  def context(self):
+    return self._context
 
-  def actor_selection(self, path):
-    return self.context.ref.actor_selection(path)
-
-  def _spawn_actor(self, context, actor_class):
-    # ref <-|-> context <-|-> actor -> queue
-
-    new_ref = context.ref.create_child_ref()
-    new_ref.context = ActorContext(new_ref, self)
-
-    kwargs = actor_class._props
-    kwargs["context"] = new_ref.context
-
-    actor = actor_class(**kwargs)
-
-    greenlet = self._spawn(self._actor_coroutine, actor)
-    new_ref.greenlet = greenlet
-
-    return new_ref
-
-  def _actor_coroutine(self, actor):
-    while True:
-      item = actor.queue.get()
-
-      # death pill
-      if item == _STOP:
-        break
-
-      actor.on_receive(item)
+  @property
+  def executor(self):
+    return self._actor_executor

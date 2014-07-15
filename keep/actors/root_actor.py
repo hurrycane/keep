@@ -6,4 +6,4 @@ class RootActor(Actor):
     super(RootActor, self).__init__(context)
 
   def on_receive(self, message):
-    print "Message from inside actor %s" % message
+    print "Message from inside RootActor %s" % message
