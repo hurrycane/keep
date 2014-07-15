@@ -36,5 +36,5 @@ def test_infinity():
 def test_initial_accural():
   for i in range(10,len(history)):
     failure_detector = AccuralFailureDetector(history[0:i])
-    for t in xfrange(0, 10, 0.1):
-      print t, failure_detector.phi(t)
+    for t in xfrange(0, 20, 0.1):
+      t, failure_detector.phi(t)
