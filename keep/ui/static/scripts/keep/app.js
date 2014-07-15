@@ -24,9 +24,11 @@ angular
         templateUrl: 'static/views/hosts.html',
         controller: 'HostsCtrl'
       })
+      .when('/deploy', {
+        templateUrl: 'static/views/deploy.html',
+        controller: 'DeployCtrl'
+      })
       .otherwise({
         redirectTo: '/'
       });
   });
-
-console.log("!")
