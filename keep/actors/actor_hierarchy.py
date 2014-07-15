@@ -23,5 +23,8 @@ class ActorHierarchy(object):
 
     return self._root
 
-  def actor_selection(self, query):
+  def context_selection(self, query):
     return [ item.get('context') for item in self._root_element.findall(query) ]
+
+  def raw_actor_selection(self, query):
+    return self._root_element.findall(query)

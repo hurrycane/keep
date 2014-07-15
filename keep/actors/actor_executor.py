@@ -45,5 +45,5 @@ class ActorExecutor(object):
       if item["kind"] == "ask":
 
         response_actor_ref = actor.context.actor_selection(item["from"])
-        for actor_ctx in response_actor_ref:
-          ActorRef(actor_ctx, item["from"])._respond(response, item["ask-id"])
+        for actor_ref in response_actor_ref:
+          actor_ref._respond(response, item["ask-id"])

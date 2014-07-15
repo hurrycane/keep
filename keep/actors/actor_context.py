@@ -57,9 +57,11 @@ class ActorContext(object):
 
   def actor_selection(self, query):
     if query[0] == "/":
-      return self._actor_system._actor_hierarchy.actor_selection(query)
+      result = self._actor_system._actor_hierarchy.raw_actor_selection(query)
     else:
-      return [ item.get("context") for item in self._element.findall(query) ]
+      result = self._element.findall(query)
+
+    return [ ActorRef(self, item.get("context")._absolute_path) for item in result ]
 
   def actor_of(self, actor_class):
     self._child_context = ActorContext(actor_system=self._actor_system,

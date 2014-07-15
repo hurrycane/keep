@@ -16,7 +16,7 @@ class ActorMessaging(object):
       # pick hostname and put into that queue
       print "Looking remote"
     else:
-      for context in self._hierarchy.actor_selection(absolute_path):
+      for context in self._hierarchy.context_selection(absolute_path):
         context.actor.queue.put(message)
 
   def ask(self, absolute_path, message):
@@ -29,5 +29,5 @@ class ActorMessaging(object):
       # pick hostname and put into that queue
       print "Looking remote"
     else:
-      for context in self._hierarchy.actor_selection(absolute_path):
+      for context in self._hierarchy.context_selection(absolute_path):
         context.actor.queue.put(message)
