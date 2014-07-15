@@ -61,6 +61,7 @@ class GeventHandler(object):
             break
 
           func, async_object = job
+
           result = func()
 
           if async_object:

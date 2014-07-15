@@ -66,7 +66,7 @@ class PolarClient(object):
     def callback(result):
       # if after two seconds doesnt' finish ?
       machines, stats = result.get(timeout=2)
-      self.hosts = machines.text.split(",")
+      self.hosts = [ host.strip() for host in machines.text.split(",") ]
 
     async_result.rawlink(callback)
 
@@ -186,6 +186,28 @@ class PolarClient(object):
   def _watch(self, path, request, watch_func, wait_index=None, is_dir=False):
     return Watcher(self, path, request, watch_func, wait_index, is_dir)
 
+  def _prepare_s(self, request):
+    """
+    Returns the partial function that can be run into a greenlet.
+    """
+    session = self.handler.requests_impl()
+    peer = self._get_peer()
+
+    if not peer.startswith("http"):
+      peer = "http://%s" % peer
+
+    query_array = request.query
+    if not query_array:
+      query_array = []
+
+    query_array += ["consistent=true"]
+
+    query_string = "&".join(query_array)
+
+    url = "%s%s?%s" % (peer, request.url, query_string)
+
+    return url, partial(session.request, request.method, url, data=request.data)
+
   def _prepare(self, request):
     """
     Returns the partial function that can be run into a greenlet.
@@ -196,7 +218,13 @@ class PolarClient(object):
     if not peer.startswith("http"):
       peer = "http://%s" % peer
 
-    query_string = "&".join(request.query if request.query else [])
+    query_array = request.query
+    if not query_array:
+      query_array = []
+
+    query_array += ["consistent=true"]
+
+    query_string = "&".join(query_array)
 
     url = "%s%s?%s" % (peer, request.url, query_string)
 
@@ -204,7 +232,6 @@ class PolarClient(object):
 
   def _call(self, request, async_object):
     prepared = self._prepare(request)
-    #print request
 
     #print request.method, request.url, request.query, request.data
     self._queue.put((prepared, async_object))

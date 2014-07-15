@@ -23,6 +23,7 @@ from functools import partial
 import requests
 
 import gevent
+from gevent import socket
 from gevent.queue import Queue
 
 from keep.polar.protocol import Request
@@ -81,10 +82,10 @@ class LifoQueue(object):
                         "recursive=true"
                       ])
 
-    prepared = self.client._prepare(request)
+    url, prepared = self.client._prepare_s(request)
 
     try:
-      timeout = random.randint(15, 30)
+      timeout = random.randint(500, 600)
       result = prepared(timeout=timeout/100.0)
 
       parser = self.handler.async_result().parser
@@ -118,9 +119,13 @@ class LifoQueue(object):
 
     except requests.exceptions.Timeout:
       pass
+    except gevent.Timeout:
+      print "Timed out!"
     except StaleData:
       _, stats = self.client.get("")
       wait_index = int(stats["stats"]["X-Etcd-Index"])
+    except socket.timeout:
+      pass
     finally:
       self.client.handler.callback_queue.put((
         partial(self._start, head_index),
