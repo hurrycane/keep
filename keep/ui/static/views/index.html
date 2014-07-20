@@ -1,25 +1,25 @@
 <div class="col-md-6 with-border">
-  <div class="entry entry-yellow">
+  <div class="entry entry-yellow" ng-repeat="service in services" ng-click="show(service)">
     <div class="entry-label" title="Status is unknown"></div>
 
     <div class="entry-name">
-      Game-Server
+      {{ service.name }}
 
-      <span class="label label-info">PROD</span>
-      <span class="label label-inverse">1.179</span>
+      <span class="label label-info">{{ service.stage }}</span>
+      <span class="label label-inverse">?</span>
     </div>
 
     <div class="entry-stats">
-      <span class="label label-default">Updated: 7 July 2014</span>
+      <span class="label label-default">Updated: {{ service.updated_at * 1000 | date:'yyyy-MM-dd HH:mm:ss Z'}}</span>
     </div>
   </div>
 
 </div>
 
-<div class="col-md-6 service-details-col">
+<div class="col-md-6 service-details-col" ng-show="selectedService" ng-controller="SelectedServiceCtrl">
   <h4>
-    Game Server
-    <span class="label label-info">PROD</span>
+    {{ selectedService.name }}
+    <span class="label label-info">{{ selectedService.stage }}</span>
 
     <div class="btn-group pull-right">
       <a href="#" class="btn btn-sm btn-inverse btn-embossed btn-edit-service smooth">
@@ -39,16 +39,15 @@
 
   <h5>
     Version:
-    <span class="label label-inverse">1.179</span>
+    <span class="label label-inverse">?</span>
   </h5>
 
   <p>Runnin on hosts:</p>
-
-  <div class="machine-entries">
+  <div class="machine-entries" ng-repeat="host in selectedService.hosts">
     <div class="machine-title status-green">
       <div class="machine-label"></div>
       <div class="machine-name">
-        <a href="#">gs3-us-east-1-aws.2o.com</a>
+        <a href="#">{{ host.name }}</a>
       </div>
       <div class="machine-status">
         <span class="label label-default">4 / 8 containers</span>
@@ -140,17 +139,11 @@
       </tr>
     </thead>
     <tbody>
-    <tr>
+    <tr ng-repeat="envvar in selectedService.envvars">
       <td>
-        <code>API_PORT</code>
+        <code>{{ envvar.name }}</code>
       </td>
-      <td>12001</td>
-    </tr>
-    <tr>
-      <td>
-        <code>DATABASE_URI</code>
-      </td>
-      <td>magie mare</td>
+      <td>{{ envvar.value }}</td>
     </tr>
     </tbody>
   </table>
@@ -167,40 +160,24 @@
       </tr>
     </thead>
     <tbody>
-    <tr>
+    <tr ng-repeat="volume in selectedService.volumes">
       <td>
-        <code>API_PORT</code>
+        <code>{{ volume.name }}</code>
       </td>
-      <td>12001</td>
-    </tr>
-    <tr>
-      <td>
-        <code>DATABASE_URI</code>
-      </td>
-      <td>magie mare</td>
+      <td>{{ volume.value }}</td>
     </tr>
     </tbody>
   </table>
 
-  <table class="table table-bordered table-striped">
-    <colgroup>
-      <col class="col-xs-3">
-      <col class="col-xs-7">
-    </colgroup>
-    <thead>
-      <tr>
-        <th>Ports</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-    <tr>
-      <td>
-        <code>Port range</code>
-      </td>
-      <td>5005 - 5010</td>
-    </tr>
-    </tbody>
-  </table>
+  <div class="danger-area">
+    <h5>
+      Danger Area
+    </h5>
+
+    <a href="#" class="btn btn-sm btn-danger btn-embossed smooth" ng-click="destroyService(selectedService)">
+      <span class="fui-trash"></span>
+      Destory service (and stop containers)
+    </a>
+  </div>
 
 </div>

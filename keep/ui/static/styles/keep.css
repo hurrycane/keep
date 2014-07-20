@@ -158,6 +158,10 @@ div.machine-title.status-green div.machine-label{
   background-color: #10d2c4;
 }
 
+div.machine-title.status-red div.machine-label{
+  background-color: #cf5e73;
+}
+
 div.container-entry{
   height: 40px;
   background: #f7f7f9;
@@ -306,4 +310,121 @@ div.container-entry.status-red div.container-label{
 
 .new-service .service-configuration{
   margin-top: 20px;
+}
+
+.new-service input.ng-invalid:not(.ng-untouched) {
+  color: #e74c3c;
+  border-color: #e74c3c;
+}
+
+.loading-spinner{
+  text-align: center
+}
+
+.gmb-loader {
+  font-size: 0;
+  display: inline-block;
+  position: relative;
+  height: 120px;
+  width: 120px;
+}
+.gmb-loader div {
+  background: #56c4b4;
+  width: 30px;
+  height: 30px;
+  border-radius: 30px;
+  position: absolute;
+  -webkit-animation: gmb-bounce 1.75s infinite;
+  animation: gmb-bounce 1.75s infinite;
+  top: 50%;
+  margin-top: -15px;
+}
+.gmb-loader div:nth-child(2) {
+  -webkit-animation-delay: 0.25s;
+  animation-delay: 0.25s;
+  left: 50%;
+  margin-left: -15px;
+}
+.gmb-loader div:nth-child(3) {
+  -webkit-animation-delay: 0.5s;
+  animation-delay: 0.5s;
+  right: 0;
+}
+
+@-webkit-keyframes gmb-bounce {
+  10% {
+    -webkit-transform: translate3d(0, 30px, 0);
+    transform: translate3d(0, 30px, 0);
+    -webkit-animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
+    height: 30px;
+  }
+
+  14% {
+    height: 90px;
+  }
+
+  15% {
+    height: 30px;
+    -webkit-transform: translate3d(0, -60px, 0);
+    transform: translate3d(0, -60px, 0);
+    -webkit-animation-timing-function: cubic-bezier(0.8, 0, 0.8, 1);
+    animation-timing-function: cubic-bezier(0.8, 0, 0.8, 1);
+  }
+
+  35% {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes gmb-bounce {
+  10% {
+    -webkit-transform: translate3d(0, 30px, 0);
+    transform: translate3d(0, 30px, 0);
+    -webkit-animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
+    height: 30px;
+  }
+
+  14% {
+    height: 90px;
+  }
+
+  15% {
+    height: 30px;
+    -webkit-transform: translate3d(0, -60px, 0);
+    transform: translate3d(0, -60px, 0);
+    -webkit-animation-timing-function: cubic-bezier(0.8, 0, 0.8, 1);
+    animation-timing-function: cubic-bezier(0.8, 0, 0.8, 1);
+  }
+
+  35% {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.table-loading {
+  display: table;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+
+  margin-top: 50px;
+}
+
+.table-loading .cell {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.danger-area{
+  border:1px dotted #e74c3c;
+  padding: 15px;
+  padding-top: 0px;
+}
+
+.danger-area h5{
+  color: #e74c3c;
 }
