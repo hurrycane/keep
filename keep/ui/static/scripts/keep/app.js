@@ -32,3 +32,57 @@ app.config(function ($routeProvider) {
       redirectTo: '/'
     });
 });
+
+app.run(function($rootScope, $interval, $q, Keep){
+  var keep = Keep()
+
+  $rootScope.hosts = {}
+
+  /* Added a new host
+   * Removed a host
+   * Make a dead host alive
+   * Make an alive host dead
+   */
+
+  $rootScope.refreshHosts = function(){
+    var deferred = $q.defer()
+
+    keep.getHosts().success(function(data){
+      // detect changes
+      _.each(data.hosts, function(value){
+        var hostname = value.name
+
+        if(_.has($rootScope.hosts, hostname)){
+          if(value.alive != $rootScope.hosts[hostname]){
+            var oldState = $rootScope.hosts[hostname]
+            $rootScope.hosts[hostname] = value.alive
+
+            $rootScope.$broadcast('hostStateChanged', hostname, oldState, value.alive)
+          }
+        } else {
+          $rootScope.hosts[hostname] = value.alive
+          $rootScope.$broadcast('hostAdded', hostname)
+        }
+      })
+
+      var toDelete = _.difference(
+        _.keys($rootScope.hosts),
+        _.map(data.hosts, function(e){ return e.name })
+      )
+
+      _.each(toDelete, function(hostname){
+        delete $rootScope.hosts[hostname]
+        $rootScope.$broadcast('hostRemoved', hostname)
+      })
+
+      deferred.resolve()
+    })
+
+    return deferred.promise;
+  }
+
+  $interval(function(){
+    $rootScope.refreshHosts()
+  }, 5000)
+
+})

@@ -8,7 +8,7 @@
  * Controller of the keepUiApp
  */
 angular.module('keepUiApp')
-  .controller('DeployCtrl', function ($scope, $resource, $interval, $q, Keep) {
+  .controller('DeployCtrl', function ($scope, $rootScope, $resource, $interval, $q, Keep) {
 
     $scope.viewLoading = true
     $scope.hosts = []
@@ -17,49 +17,17 @@ angular.module('keepUiApp')
     $scope.selectedService;
 
     var keep = Keep()
-    var stop;
 
-    $scope.refreshHosts = function(){
-      var deferred = $q.defer();
-
-      keep.getHosts().success(function(data){
-        _.each(data.hosts, function(elem){
-          // is host present if yes -> update status
-          var isHost = _.find($scope.hosts, function(e){ return e.name == elem.name })
-
-          if (!isHost || isHost.length == 0){
-            $scope.hosts.push(
-              _.extend(elem, {
-                selected: false,
-                containers: 0,
-                instace_numbers: 0,
-                port_start: 0,
-                port_end: 0
-              })
-            )
-          } else {
-            isHost.alive = elem.alive
-          }
-        })
-        deferred.resolve()
-      })
-
-      return deferred.promise;
-    }
-
-    $scope.refreshHosts().then(function(){
+    $rootScope.refreshHosts().then(function(){
+      $scope.hosts = $rootScope.hosts
 
       keep.getAvailableImages().success(function(data){
         $scope.images = data.services
         $scope.viewLoading = false
       })
-
-      stop = $interval(function(){
-        $scope.refreshHosts()
-      }, 10000)
     })
 
-    $scope.save= function(service){
+    $scope.save = function(service){
       new keep.Service({
         name: service.name,
         image: service.image,

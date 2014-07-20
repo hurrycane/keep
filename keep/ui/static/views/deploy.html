@@ -26,10 +26,10 @@
         <p class="smooth description">2. Chose machines on which your service needs to run:</p>
 
         <div class="machine-entries">
-          <div class="machine-title" ng-class="{ 'selected': host.selected, 'status-green': host.alive, 'status-red': !host.alive }" ng-repeat-start="host in hosts" ng-click="selectHost(host)">
+          <div class="machine-title" ng-class="{ 'selected': host.selected, 'status-green': state, 'status-red': !state }" ng-repeat-start="(hostname, state) in hosts" ng-click="selectHost(host)">
             <div class="machine-label"></div>
             <div class="machine-name">
-              <a>{{ host.name }}</a>
+              <a>{{ hostname }}</a>
             </div>
             <div class="machine-status">
               <span class="label label-default">{{ host.containers }} containers running</span>
