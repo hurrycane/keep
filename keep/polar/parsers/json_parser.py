@@ -69,3 +69,5 @@ class JSONParser(object):
 
         return_value = parsed_value["node"]["value"]
         return return_value, parsed_value
+
+    print(value.text)
