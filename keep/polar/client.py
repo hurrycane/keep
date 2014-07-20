@@ -200,7 +200,7 @@ class PolarClient(object):
     if not query_array:
       query_array = []
 
-    query_array += ["consistent=true"]
+    #query_array += ["consistent=true"]
 
     query_string = "&".join(query_array)
 
@@ -222,11 +222,13 @@ class PolarClient(object):
     if not query_array:
       query_array = []
 
-    query_array += ["consistent=true"]
+    #query_array += ["consistent=true"]
 
     query_string = "&".join(query_array)
 
     url = "%s%s?%s" % (peer, request.url, query_string)
+
+    print url
 
     return partial(session.request, request.method, url, data=request.data)
 
