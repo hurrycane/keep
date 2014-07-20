@@ -17,8 +17,8 @@ log = logging.getLogger("crow")
 from .phi_accrual_failure_detector import AccuralFailureDetector
 from .exceptions import NotEnoughData
 
-CROW_TIMEOUT = 0.5
-CROW_PHI_TIMEOUT = 0.7
+CROW_TIMEOUT = 2
+CROW_PHI_TIMEOUT = 2
 
 class CrowContext(object):
 
@@ -33,7 +33,7 @@ class CrowContext(object):
 
     self.heartbeat_history = {}
     self._started = False
-    self.default_ttl = 3
+    self.default_ttl = 7
     self._hosts = set()
 
     # start watcher
@@ -50,7 +50,14 @@ class CrowContext(object):
 
   @property
   def hosts(self):
-    return self._hosts
+    current_hosts = self._hosts.copy()
+    current_hosts.add(self.hostname)
+
+    return current_hosts
+
+  @property
+  def known_hosts(self):
+    return self.heartbeat_history.keys() + [ self.hostname ]
 
   def add_handler(self, event, handler):
     pass
@@ -69,11 +76,13 @@ class CrowContext(object):
 
           phi = failure_detector.phi(time_from_last_seen)
 
-          if phi > 5.3 and phi < 20:
+          log.info("@@@@@@@@@ Host = %s and phi = %s", key, phi)
+
+          if phi > 3.0 and phi < 600:
             if key in self._hosts:
               log.info("Host %s removed from list", key)
               self._hosts.discard(key)
-          elif phi >= 20:
+          elif phi >= 600:
             del self.heartbeat_history[key]
             log.info("Host %s removed from general list", key)
           else:
@@ -103,7 +112,11 @@ class CrowContext(object):
 
     if stats["action"] == "set":
       key_with_hostname = stats["node"]["key"]
+
       hostname = key_with_hostname.split("/")[-1]
+
+      if hostname == self.hostname:
+        return
 
       if hostname not in self.heartbeat_history:
         self.heartbeat_history[hostname] = deque()
