@@ -6,10 +6,12 @@ import gevent
 from gevent import monkey as curious_george
 curious_george.patch_all()
 
+from gevent.wsgi import WSGIServer
+
 from keep.polar.client import PolarClient
 from keep.polar.handlers import GeventHandler
 
-from keep.actors import ActorSystem
+from keep.actors import ActorSystem, ActorFlask
 from keep.agent.keep_rpc_actor import KeepRpcActor
 
 from keep.crow import CrowContext
@@ -41,18 +43,29 @@ def execute_from_cli(hostname, cluster, with_ui, peers):
 
   crow = CrowContext(polar_client, hostname, cluster)
 
+  actor_name = "%s-%s" % (hostname, cluster)
   actor_system = ActorSystem(
     polar_client=polar_client,
-    name="%s-%s" % (hostname, cluster)
+    name=actor_name
   )
 
-  actor_system.actor_of(KeepRpcActor)
+  actor_system.actor_of(KeepRpcActor.props(
+    crow=crow
+  ))
 
   crow.announce()
 
-  #actor_ref = actor_system.actor_selection("/KeepRpcActor")
-  #actor_ref.tell("Hai salut")
+  if with_ui == True:
+    from keep.ui import app
 
-  print "Reached end"
+    app.config["actor_flask"] = actor_system
+    app.config["polar_client"] = polar_client
 
-  gevent.sleep(1000)
+    # adapt polar client wo work with the WSGI adapter
+
+    http_server = WSGIServer(('', 5000), app)
+
+    print "Stared UI on port 5000"
+    http_server.serve_forever()
+
+  gevent.wait()
