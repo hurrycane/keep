@@ -58,7 +58,7 @@ class Watcher(object):
 
     try:
       # do the request and wait for 0.2 seconds
-      result = prepared(timeout=0.3)
+      result = prepared(timeout=10)
 
       # if we're on this part of the try method it means that the etcd request
       # passed and not timed-out which means we need to call the callback
