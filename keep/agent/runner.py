@@ -50,7 +50,8 @@ def execute_from_cli(hostname, cluster, with_ui, peers):
   )
 
   actor_system.actor_of(KeepRpcActor.props(
-    crow=crow
+    crow=crow,
+    polar_client=polar_client
   ))
 
   crow.announce()
