@@ -26,24 +26,25 @@
         <p class="smooth description">2. Chose machines on which your service needs to run:</p>
 
         <div class="machine-entries">
-          <div class="machine-title" ng-class="{ 'selected': host.selected, 'status-green': state, 'status-red': !state }" ng-repeat-start="(hostname, state) in hosts" ng-click="selectHost(host)">
+          <div class="machine-title" ng-class="{ 'selected': hostMetadata[hostname].selected, 'status-green': state, 'status-red': !state }" ng-repeat-start="(hostname, state) in hosts" ng-click="selectHost(hostname)">
+
             <div class="machine-label"></div>
             <div class="machine-name">
               <a>{{ hostname }}</a>
             </div>
             <div class="machine-status">
-              <span class="label label-default">{{ host.containers }} containers running</span>
+              <span class="label label-default">{{ 0 }} containers running</span>
             </div>
           </div>
-          <div class="machine-opts" ng-show="host.selected" ng-repeat-end>
+          <div class="machine-opts" ng-show="hostMetadata[hostname].selected" ng-repeat-end>
             <div class="form-group instances-holder">
               <label for="exampleInputEmail1" class="smooth">Instances</label>
-              <input type="number" ng-model="host.instace_numbers" id="instance_number" value="0" min="0" max="10" />
+              <input type="number" ng-model="hostMetadata[hostname].instace_numbers" id="instance_number" value="0" min="0" max="10" />
             </div>
             <div class="form-group port-range">
               <label for="exampleInputEmail1" class="smooth">Port range</label>
-              <input type="number" ng-model="host.port_start" class="port_range_input" value="0" min="1" max="30000" /> -
-              <input type="number" ng-model="host.port_end" class="port_range_input" value="0" min="0" max="30000" />
+              <input type="number" ng-model="hostMetadata[hostname].port_start" class="port_range_input" value="0" min="0" max="30000" />
+              <input type="number" ng-model="hostMetadata[hostname].port_end" class="port_range_input" value="0" min="0" max="30000" />
             </div>
           </div>
 

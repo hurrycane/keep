@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
-requires = ["click>=2.1", "requests>=2.3.0", "ujson>=1.33", "gevent>=1.0.1",
-            "Flask>=0.10.1"]
+requires = ["click>=2.1", "ujson>=1.33", "gevent>=1.0.1",
+            "Flask>=0.10.1", "docker-py>=0.3.2"]
 
 setup(name="keep",
       version="0.0.1",

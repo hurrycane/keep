@@ -54,11 +54,11 @@
       </div>
     </div>
 
-    <div class="container-entry status-green">
+    <div class="container-entry status-red" ng-repeat="container in host.containers">
       <div class="container-label"></div>
       <div class="container-name">
-        2oteam/services-andromeda-api
-        <span class="label label-info container-port">Status: Running</span>
+        {{ container.image }}
+        <span class="label label-danger container-port">Status: {{ container.status }}</span>
       </div>
       <div class="container-status">
         <div class="btn-group">
@@ -68,37 +68,10 @@
           <ul class="dropdown-menu" role="menu">
             <li>
             <a href="#">
-              <span class="glyphicon glyphicon-refresh"></span>
-              Restart
+              <span class="fui-play"></span>
+              Start
             </a>
             </li>
-            <li>
-            <a href="#">
-              <span class="fui-pause"></span>
-              Pause</a>
-            </li>
-            <li>
-            <a href="#">
-              <span class="fui-trash"></span>
-              Remove
-            </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="container-entry status-red">
-      <div class="container-label"></div>
-      <div class="container-name">
-        2oteam/services-andromeda-api
-        <span class="label label-danger container-port">Status: Stopped</span>
-      </div>
-      <div class="container-status">
-        <div class="btn-group">
-          <button type="button" class="btn btn-xs btn-default dropdown-toggle smooth" data-toggle="dropdown">
-            <span class="fui-gear"></span>
-          </button>
-          <ul class="dropdown-menu" role="menu">
             <li>
             <a href="#">
               <span class="glyphicon glyphicon-refresh"></span>

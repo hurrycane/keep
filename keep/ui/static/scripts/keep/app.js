@@ -11,7 +11,8 @@
 var app = angular.module('keepUiApp', [
   'ngRoute',
   'ngResource',
-  'ngSanitize'
+  'ngSanitize',
+  'ui.bootstrap'
 ])
 
 app.config(function ($routeProvider) {
