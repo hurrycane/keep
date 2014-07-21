@@ -11,7 +11,9 @@ angular.module('keepUiApp')
   .controller('DeployCtrl', function ($scope, $rootScope, $resource, $interval, $q, Keep) {
 
     $scope.viewLoading = true
-    $scope.hosts = []
+    $scope.hosts = {}
+    $scope.hostMetadata = {}
+
     $scope.images = []
 
     $scope.selectedService;
@@ -19,7 +21,15 @@ angular.module('keepUiApp')
     var keep = Keep()
 
     $rootScope.refreshHosts().then(function(){
-      $scope.hosts = $rootScope.hosts
+      $scope.hosts = angular.copy($rootScope.hosts)
+      $scope.hostMetadata = _.object(_.map($scope.hosts, function(value, key){
+        return [ key, {
+          selected: false,
+          instace_numbers: 0,
+          port_start: 0,
+          port_end: 0
+        }]
+      }))
 
       keep.getAvailableImages().success(function(data){
         $scope.images = data.services
@@ -32,10 +42,24 @@ angular.module('keepUiApp')
         name: service.name,
         image: service.image,
         stage: _.first(_.where($scope.stages, { selected: true })).name,
-        hosts: _.map($scope.hosts, function(host){
+        hosts: _.map($scope.hosts, function(value, hostname){
+          var host = $scope.hostMetadata[hostname]
+
           return {
-            name: host.name,
-            containers: host.containers,
+            name: hostname,
+            container_count: host.instace_numbers,
+            containers: _.map(_.range(host.instace_numbers), function(element){
+              return {
+                id: null,
+                status: "not deployed",
+                image_name: service.image,
+                image_version: null,
+                uptime: 0,
+                ports: {},
+                volumes: {},
+                command: null
+              }
+            }),
             ports: {
               start: host.port_start,
               end: host.port_end
@@ -63,7 +87,7 @@ angular.module('keepUiApp')
     ]
 
     $scope.selectHost = function(host){
-      host.selected = !host.selected
+      $scope.hostMetadata[host].selected = !$scope.hostMetadata[host].selected
     }
 
     $scope.selectStage = function(stage){
@@ -80,12 +104,5 @@ angular.module('keepUiApp')
     $scope.appendCollection = function(collection){
       collection.push({name:"", value:""})
     }
-
-    $scope.$on('$destroy', function() {
-      if (angular.isDefined(stop)) {
-        $interval.cancel(stop);
-        stop = undefined;
-      }
-    })
 
   });

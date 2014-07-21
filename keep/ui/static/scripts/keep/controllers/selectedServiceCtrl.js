@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('keepUiApp')
-  .controller('SelectedServiceCtrl', function ($scope, Keep) {
+  .controller('SelectedServiceCtrl', function ($scope, $modal, Keep) {
 
     var keep = Keep()
 
