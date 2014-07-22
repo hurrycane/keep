@@ -29,6 +29,10 @@ app.config(function ($routeProvider) {
       templateUrl: 'static/views/services/new.html',
       controller: 'NewServiceCtrl'
     })
+    .when('/services/:serviceId/edit', {
+      templateUrl: 'static/views/services/edit.html',
+      controller: 'EditServiceCtrl'
+    })
     .otherwise({
       redirectTo: '/'
     });

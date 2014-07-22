@@ -66,6 +66,15 @@ def create_service():
 
   return "OK", 201
 
+@app.route('/1.0/services/<service_id>')
+def show_service(service_id):
+  polar_client = current_app.config["polar_client"]
+
+  node, stats = polar_client.get_children("%s/%s" % (KEEP_SERVICES, service_id))
+
+  return jsonify({
+    "service": json.loads(node)
+  })
 
 @app.route('/1.0/services')
 def index_service():

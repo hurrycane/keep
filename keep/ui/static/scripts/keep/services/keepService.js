@@ -20,14 +20,15 @@ app.service('Keep', function($resource, $http) {
           url: "/1.0/service-versions?service=" + serviceName
         });
       },
-      Service: $resource("/1.0/services", {}, {
+      Service: $resource("/1.0/services/:serviceId", {}, {
         index: {
           method: 'GET',
           params: {},
           headers: {
             'Content-Type': 'application/json'
           }
-        }
+        },
+        update: { method: 'PUT' }
       })
     }
   }

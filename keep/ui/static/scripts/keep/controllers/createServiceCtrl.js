@@ -8,7 +8,8 @@
  * Controller of the keepUiApp
  */
 angular.module('keepUiApp')
-  .controller('NewServiceCtrl', function ($scope, $rootScope, $resource, $interval, $q, Keep) {
+  .controller('NewServiceCtrl', function ($scope, $rootScope, $resource,
+                                          $location, $interval, $q, Keep) {
 
     $scope.viewLoading = true
     $scope.hosts = {}
@@ -69,6 +70,8 @@ angular.module('keepUiApp')
         envvars: $scope.envvars,
         volumes: $scope.volumes
       }).$save()
+
+      $location.path("/").replace()
     }
 
     $scope.stages = [

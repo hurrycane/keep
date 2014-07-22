@@ -1,0 +1,117 @@
+<div loading-spinner="viewLoading" >
+  <div class="new-service">
+    <h2>Edit service</h2>
+
+    <form name="form" role="form" novalidate>
+      <div class="form-group">
+        <input type="text" placeholder="Service name" class="form-control input-md smooth service_name_input" ng-model="service.name" required />
+        <label for="exampleInputEmail1" class="smooth container_images_label">Image:</label>
+        <select class="form-control smooth" ng-model="service.image" ng-options="image for image in images" />
+      </div>
+
+      <div class="stage-choose">
+        <p class="smooth">
+        1. Chose the stage on which you want to run your service:
+        </p>
+        <ul>
+          <li ng-repeat="stage in stages" ng-click="selectStage(stage.name)">
+          <a href="">
+            <span class="label" ng-class="stage.selected ? 'label-info stage-selected' : 'label-default'">{{ stage.name }}</span>
+          </a>
+          </li>
+        </div>
+
+        <p class="smooth description">2. Chose machines on which your service needs to run:</p>
+
+        <div class="machine-entries">
+          <div class="machine-title" ng-class="{ 'selected': hostMetadata[hostname].selected, 'status-green': state, 'status-red': !state }" ng-repeat-start="(hostname, state) in hosts" ng-click="selectHost(hostname)">
+
+            <div class="machine-label"></div>
+            <div class="machine-name">
+              <a>{{ hostname }}</a>
+            </div>
+            <div class="machine-status">
+              <span class="label label-default">{{ 0 }} containers running</span>
+            </div>
+          </div>
+          <div class="machine-opts" ng-show="hostMetadata[hostname].selected" ng-repeat-end>
+            <div class="form-group instances-holder">
+              <label for="exampleInputEmail1" class="smooth">Instances</label>
+              <input type="number" ng-model="hostMetadata[hostname].instace_numbers" id="instance_number" value="0" min="0" max="10" />
+            </div>
+            <div class="form-group port-range">
+              <label for="exampleInputEmail1" class="smooth">Port range</label>
+              <input type="number" ng-model="hostMetadata[hostname].port_start" class="port_range_input" value="0" min="0" max="30000" />
+              <input type="number" ng-model="hostMetadata[hostname].port_end" class="port_range_input" value="0" min="0" max="30000" />
+            </div>
+          </div>
+
+        </div>
+
+        <div class="service-configuration">
+          <p class="smooth description">3. Chose environment variables and volumes used for your service:</p>
+
+          <table class="table table-bordered table-striped">
+            <colgroup>
+              <col class="col-xs-2">
+              <col class="col-xs-7">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Environment variables</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="envvar in service.envvars" >
+              <td>
+                <input type="text" value="" ng-model="envvar.name" placeholder="Name" class="form-control input-md smooth" required />
+              </td>
+              <td>
+                <input type="text" value="" ng-model="envvar.value" placeholder="Value" class="form-control input-md smooth" required />
+              </td>
+            </tr>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <a href="" class="smooth add_more" ng-click="appendCollection(scope.envvars)">Add new env variable</a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+        <table class="table table-bordered table-striped">
+          <colgroup>
+            <col class="col-xs-2">
+            <col class="col-xs-7">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Volumes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr ng-repeat="volume in service.volumes">
+            <td>
+              <input type="text" value="" ng-model="volume.name" placeholder="Volume host" class="form-control input-md smooth" required />
+            </td>
+            <td>
+              <input type="text" value="" ng-model="volume.value" placeholder="Mount point guest" class="form-control input-md smooth" required />
+            </td>
+          </tr>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <a href="" class="smooth add_more" ng-click="appendCollection(volumes)">Add new volume</a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <button ng-disabled="form.$invalid" ng-click="save(service)" class="btn btn-lg btn-block btn-info">Save</a>
+
+    </div>
+    </form>
+  </div>
+</div>
