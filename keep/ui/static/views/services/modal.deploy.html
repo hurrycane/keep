@@ -1,0 +1,18 @@
+<div class='modal-header'>
+  <button aria-hidden='true' class='close' data-dismiss='modal' ng-click='close()' type='button'>×</button>
+  <h4 class='modal-title'>Deploy new version of {{ serviceName }}</h4>
+</div>
+<div class='modal-body'>
+  <form role='form'>
+    <div class='form-group'>
+      <label for='title'>Which version do you want to deploy?</label>
+      <select class="form-control smooth ng-pristine ng-valid ng-touched">
+        <option ng-repeat="version in serviceVersions" ng-value="version">{{ version }}</option>
+      </select>
+    </div>
+  </form>
+</div>
+<div class='modal-footer'>
+  <button class='btn btn-default' data-dismiss='modal' ng-click='close()' type='button'>Close</button>
+  <button class='btn btn-danger' ng-click='ok()' type='button'>Deploy</button>
+</div>

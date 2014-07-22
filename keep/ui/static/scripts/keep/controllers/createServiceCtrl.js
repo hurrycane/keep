@@ -8,7 +8,7 @@
  * Controller of the keepUiApp
  */
 angular.module('keepUiApp')
-  .controller('DeployCtrl', function ($scope, $rootScope, $resource, $interval, $q, Keep) {
+  .controller('NewServiceCtrl', function ($scope, $rootScope, $resource, $interval, $q, Keep) {
 
     $scope.viewLoading = true
     $scope.hosts = {}

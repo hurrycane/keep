@@ -36,6 +36,19 @@ def get_available_image():
     ]
   })
 
+@app.route('/1.0/service-versions')
+def get_service_versions():
+  service_name = request.args.get('service')
+  polar_client = current_app.config["polar_client"]
+
+  node, stats = polar_client.get("/services/%s" % service_name)
+
+  large_version, small_version = node.split(".")
+
+  return jsonify({
+    "versions": [ "%s.%s" % (large_version, int(small_version) - i) for i in range(10) ]
+  })
+
 @app.route('/1.0/services', methods=["POST"])
 def create_service():
   data = json.loads(request.data)

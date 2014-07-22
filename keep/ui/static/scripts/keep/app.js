@@ -18,16 +18,16 @@ var app = angular.module('keepUiApp', [
 app.config(function ($routeProvider) {
   $routeProvider
     .when('/', {
-      templateUrl: 'static/views/index.html',
-      controller: 'ServiceCtrl'
+      templateUrl: 'static/views/services/index.html',
+      controller: 'IndexServiceCtrl'
     })
     .when('/hosts', {
       templateUrl: 'static/views/hosts.html',
       controller: 'HostsCtrl'
     })
-    .when('/deploy', {
-      templateUrl: 'static/views/deploy.html',
-      controller: 'DeployCtrl'
+    .when('/services/new', {
+      templateUrl: 'static/views/services/new.html',
+      controller: 'NewServiceCtrl'
     })
     .otherwise({
       redirectTo: '/'
