@@ -2,6 +2,33 @@ import uuid
 
 from gevent.queue import Empty
 
+class RemoteActorRef(object):
+
+  def __init__(self, from_context, remote_uri):
+    self._from_context = from_context
+    self._remote_uri = remote_uri
+
+  def tell(self, message_body):
+    message = self._build_message(message_body)
+    message["kind"] = "tell"
+
+    self._from_context._remoting.tell(self._remote_uri, message)
+
+  def _build_message(self, message_body):
+    from_path = self._from_context._absolute_path
+    from_path = "/" if from_path == "" else from_path
+
+    from_path = "actors.etcd://%s%s" % (
+      self._from_context._actor_system._actor_name,
+      from_path
+    )
+
+    return {
+      "from": from_path,
+      "to": self._absolute_path,
+      "body": message_body
+    }
+
 class ActorRef(object):
 
   def __init__(self, from_context, absolute_path):

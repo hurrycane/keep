@@ -1,8 +1,9 @@
 import uuid
+from urlparse import urlparse
 
 import xml.etree.ElementTree as ET
 
-from .actor_ref import ActorRef
+from .actor_ref import ActorRef, RemoteActorRef
 
 class ActorContext(object):
   """
@@ -56,10 +57,16 @@ class ActorContext(object):
       )
 
   def actor_selection(self, query):
-    if query[0] == "/":
-      result = self._actor_system._actor_hierarchy.raw_actor_selection(query)
+    # parse URI and if it has remote location then send it to it
+    uri = urlparse(query)
+
+    if uri.scheme:
+      return [ RemoteActorRef(self, query) ]
     else:
-      result = self._element.findall(query)
+      if query[0] == "/":
+        result = self._actor_system._actor_hierarchy.raw_actor_selection(query)
+      else:
+        result = self._element.findall(query)
 
     return [ ActorRef(self, item.get("context")._absolute_path) for item in result ]
 
