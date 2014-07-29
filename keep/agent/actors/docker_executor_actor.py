@@ -1,3 +1,5 @@
+import json
+
 from keep.actors import Actor
 
 KEEP_SERVICES = "keep-services"
@@ -20,10 +22,10 @@ class DockerExecutorActor(Actor):
     service_data, stats = self.polar_client.get("%s/%s" % \
                                                 (KEEP_SERVICES, service_id))
 
-    uri = urlparse(absolute_path)
+    service_data = json.loads(service_data)
 
     # connect to every host and tell them to start the container
     for host in service_data["hosts"]:
-      actor_ref = self.context.actor_selection("actor.etcd://%s/KeepRpcActor/DockerExecutorActor" % host)
+      actor_ref = self.context.actor_selection("actor.etcd://%s/KeepRpcActor/DockerExecutorActor" % host["name"])
 
-      actor_ref.tell({})
+      actor_ref[0].tell({})
