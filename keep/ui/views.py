@@ -94,3 +94,32 @@ def delete_service():
   polar_client.delete("%s/%s" % (KEEP_SERVICES, service_id))
 
   return "OK"
+
+@app.route('/1.0/services/<service_id>', methods=["PUT"])
+def update_service(service_id):
+  data = json.loads(request.data)
+  data["updated_at"] = int(time.time())
+  data["id"] = service_id
+
+  polar_client = current_app.config["polar_client"]
+
+  service_key = "%s/%s" % (KEEP_SERVICES, service_id)
+  polar_client.set(service_key, json.dumps(data))
+
+  return "OK", 201
+
+
+@app.route('/1.0/deploy/<service_id>', methods=["POST"])
+def deploy_service(service_id):
+  version = request.args.get('version')
+  actor_system = current_app.config["actor_flask"]
+
+  actor_ref = actor_system.actor_selection("/KeepRpcActor/DockerExecutorActor")
+
+  actor_ref[0].tell({
+    "message_type": "deploy",
+    "service": service_id,
+    "version" : version
+  })
+
+  return "OK", 201
