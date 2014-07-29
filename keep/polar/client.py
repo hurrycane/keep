@@ -7,7 +7,7 @@ import requests
 from gevent import sleep
 
 from keep.polar.utils import retry
-from keep.polar.protocol import Request, LifoQueue, Watcher
+from keep.polar.protocol import Request, LifoQueue, WriteOnlyQueue, Watcher
 from keep.polar.protocol import RequestExecutor
 
 """
@@ -138,6 +138,18 @@ class PolarClient(object):
   def mkdir(self, path):
     return self.mkdir_async(path).get()
 
+  def mknod(self, queue_name, value):
+    return self.mknod_async(queue_name, value).get()
+
+  def mknod_async(self, queue_name, value):
+    async_result = self.handler.async_result()
+
+    self._call(Request("POST", "/v2/keys/%s" % queue_name, data={
+      "value": value
+    }), async_result)
+
+    return async_result
+
   def delete_async(self, path):
     async_result = self.handler.async_result()
     async_result.parser = None
@@ -248,3 +260,6 @@ class PolarClient(object):
 
   def Queue(self, name):
     return LifoQueue(self, name)
+
+  def WriteOnlyQueue(self, name):
+    return WriteOnlyQueue(self, name)
