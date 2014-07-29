@@ -58,7 +58,7 @@ angular.module('keepUiApp')
           _.each($scope.service.hosts, function(elem){
             $scope.hostMetadata[elem.name] = {
               selected: true,
-              instace_numbers: elem.containers.length,
+              instace_numbers: elem.container_count,
               port_start: elem.ports.start,
               port_end: elem.ports.end
             }
@@ -69,8 +69,26 @@ angular.module('keepUiApp')
     })
 
     $scope.save = function(service){
-      keep.Service.update({serviceId: $scope.serviceId}, $scope.service)
-      $location.path("/").replace()
+      keep.Service.update({serviceId: $scope.serviceId}, {
+        name: service.name,
+        image: service.image,
+        stage: _.first(_.where($scope.stages, { selected: true })).name,
+        hosts: _.map($scope.hosts, function(value, hostname){
+          var host = $scope.hostMetadata[hostname]
+
+          return {
+            name: hostname,
+            container_count: host.instace_numbers,
+            ports: {
+              start: host.port_start,
+              end: host.port_end
+            }
+          }
+        }),
+        envvars: service.envvars,
+        volumes: service.volumes
+      })
+      //$location.path("/").replace()
     }
 
     $scope.selectHost = function(host){

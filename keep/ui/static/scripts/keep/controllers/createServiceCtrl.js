@@ -49,18 +49,6 @@ angular.module('keepUiApp')
           return {
             name: hostname,
             container_count: host.instace_numbers,
-            containers: _.map(_.range(host.instace_numbers), function(element){
-              return {
-                id: null,
-                status: "not deployed",
-                image_name: service.image,
-                image_version: null,
-                uptime: 0,
-                ports: {},
-                volumes: {},
-                command: null
-              }
-            }),
             ports: {
               start: host.port_start,
               end: host.port_end

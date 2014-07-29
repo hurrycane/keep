@@ -5,6 +5,12 @@ var ModalDeployCtrl = function($scope, $modalInstance, serviceName, serviceVersi
   $scope.serviceVersions = serviceVersions
   $scope.serviceName = serviceName
 
+  $scope.service = { version: serviceVersions[0] }
+
+  $scope.deploy = function(){
+    $modalInstance.close($scope.service.version)
+  }
+
   $scope.close = function(){
     $modalInstance.dismiss('cancel')
   }
@@ -35,6 +41,10 @@ angular.module('keepUiApp')
               return data.versions
             }
           }
+        })
+
+        modalInstance.result.then(function(version){
+          keep.deployService($scope.selectedService, version)
         })
 
       })

@@ -88,6 +88,6 @@ app.run(function($rootScope, $interval, $q, Keep){
 
   $interval(function(){
     $rootScope.refreshHosts()
-  }, 5000)
+  }, 30000)
 
 })

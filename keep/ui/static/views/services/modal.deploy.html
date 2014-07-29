@@ -6,13 +6,13 @@
   <form role='form'>
     <div class='form-group'>
       <label for='title'>Which version do you want to deploy?</label>
-      <select class="form-control smooth ng-pristine ng-valid ng-touched">
-        <option ng-repeat="version in serviceVersions" ng-value="version">{{ version }}</option>
+      <select class="form-control smooth ng-pristine ng-valid ng-touched" ng-model="service.version"
+              ng-options="version for version in serviceVersions">
       </select>
     </div>
   </form>
 </div>
 <div class='modal-footer'>
   <button class='btn btn-default' data-dismiss='modal' ng-click='close()' type='button'>Close</button>
-  <button class='btn btn-danger' ng-click='ok()' type='button'>Deploy</button>
+  <button class='btn btn-danger' ng-click='deploy()' type='button'>Deploy</button>
 </div>

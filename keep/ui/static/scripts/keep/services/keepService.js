@@ -20,6 +20,12 @@ app.service('Keep', function($resource, $http) {
           url: "/1.0/service-versions?service=" + serviceName
         });
       },
+      'deployService': function(service, version){
+        return $http({
+          method: 'POST',
+          url: "/1.0/deploy/" + service.id + "?version=" + version
+        });
+      },
       Service: $resource("/1.0/services/:serviceId", {}, {
         index: {
           method: 'GET',
