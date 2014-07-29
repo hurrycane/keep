@@ -13,6 +13,7 @@ class ActorContext(object):
   def __init__(self, actor_system, parent_context):
     self._actor_system = actor_system
     self._messaging = actor_system._actor_messaging
+    self._remoting = actor_system._actor_remoting
 
     self._parent_context = parent_context
 

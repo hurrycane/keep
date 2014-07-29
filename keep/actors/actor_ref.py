@@ -25,7 +25,7 @@ class RemoteActorRef(object):
 
     return {
       "from": from_path,
-      "to": self._absolute_path,
+      "to": self._remote_uri,
       "body": message_body
     }
 

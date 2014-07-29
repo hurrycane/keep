@@ -52,6 +52,7 @@ class ActorSystem(object):
     """
 
     self._context = self._actor_hierarchy.init(RootActor)
+    self._actor_remoting.start()
 
   def actor_selection(self, query):
     return self.context.actor_selection(query)

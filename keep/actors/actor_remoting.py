@@ -1,3 +1,5 @@
+import gevent
+
 from urlparse import urlparse
 
 class ActorRemoting(object):
@@ -10,12 +12,17 @@ class ActorRemoting(object):
   def start(self):
     self._queue = self._client.Queue("actors-%s" % self._actor_name)
 
+    gevent.spawn(self._start)
+
+  def _start(self):
     while True:
       item = self._queue.get()
-      print "Item from remoting - %s" % item
+      print "@@@@@@@@@@@@@@@@@@@@@@@@ Item from remoting - %s" % item
 
   def tell(self, remote_uri, message_body):
     parsed_uri = urlparse(remote_uri)
+
+    print "!!!!!!!!!!!!!!! Writing to queue - %s" % parsed_uri.netloc
 
     self._client.WriteOnlyQueue("actors-%s" % parsed_uri.netloc).put(message_body)
 
